@@ -1,0 +1,23 @@
+{
+    "name": "teppokoivula/reactions",
+    "type": "pw-module",
+    "description": "Reactions is a ProcessWire CMS/CMF module for adding the ability for visitors to add reactions for pages.",
+    "keywords": [
+        "module",
+        "processwire"
+    ],
+    "homepage": "https://github.com/teppokoivula/reactions",
+    "license": "MPL-2.0",
+    "authors": [
+        {
+            "name": "Teppo Koivula",
+            "homepage": "https://github.com/teppokoivula",
+            "email": "teppo.koivula@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "processwire/processwire": ">=3.0.154",
+        "wireframe-framework/processwire-composer-installer": "^1.0.0"
+    }
+}

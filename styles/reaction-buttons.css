@@ -1,0 +1,40 @@
+.reaction-buttons {
+	display: flex;
+	gap: 1rem;
+	margin: 2rem 0;
+}
+
+.reaction-buttons__button {
+	display: flex;
+	gap: .75rem;
+	flex-direction: row;
+	align-items: center;
+	border: 1px solid rgba(0, 0, 0, .5);
+	background: #fff;
+	color: #000;
+	border-radius: .25rem;
+	padding: 1rem 1.5rem;
+	cursor: pointer;
+	transition: background .2s, color .2s;
+}
+
+.reaction-buttons__button:focus,
+.reaction-buttons__button:hover {
+	background: #fafafa;
+	color: #000;
+}
+
+.reaction-buttons__button--active {
+	background: #000;
+	color: #fff;
+}
+
+.reaction-buttons__button--active path {
+	fill: #fff;
+}
+
+.reaction-buttons__button--active:focus,
+.reaction-buttons__button--active:hover {
+	background: #333;
+	color: #fff;
+}
