@@ -34,25 +34,24 @@ class Reactions extends WireData implements Module {
 		return [
 			'title' => 'Reactions',
 			'summary' => 'A module for collecting reactions on pages.',
-			'version' => '0.0.1',
+			'version' => '0.0.2',
 			'author' => 'Teppo Koivula',
 			'href' => 'https://github.com/teppokoivula/reactions',
 			'icon' => 'heart-o',
 			'autoload' => true,
 			'requires' => 'ProcessWire>=3.0.154',
+			'singular' => true,
 		];
 	}
 
 	/**
 	 * Initialize the module, add hooks
 	 */
-	public function init() {
+	public function ready() {
 
 		// get reaction types from site config (if available)
 		$reaction_types = $this->config->reactions ? $this->config->reactions['reaction_types'] : null;
-		if ($reaction_types) {
-			$this->setReactionTypes($reaction_types);
-		}
+		$this->setReactionTypes($reaction_types);
 
 		$this->addHook('/reactions/save/', $this, 'hookSaveReaction');
 	}
@@ -113,16 +112,22 @@ class Reactions extends WireData implements Module {
 	/**
 	 * Set reaction types
 	 *
-	 * @param array $reaction_types
+	 * @param array|null $reaction_types
 	 */
-	public function setReactionTypes(array $reaction_types) {
+	public function ___setReactionTypes(?array $reaction_types) {
+
+		// bail out early if no reaction types were provided
+		if ($reaction_types === null) {
+			return;
+		}
 
 		// validate reaction type names (need to be valid column names)
 		foreach ($reaction_types as $reaction_type => $reaction) {
-			if (!preg_match('/^[a-z0-9_]+$/', $reaction_type)) {
+			if (!preg_match('/^[a-z0-9_-]+$/', $reaction_type)) {
 				throw new WireException(sprintf(
-					$this->_('Invalid reaction type name: %s')
-				), $reaction_type);
+					$this->_('Invalid reaction type name: %s'),
+					$reaction_type
+				));
 			}
 		}
 
@@ -260,12 +265,20 @@ class Reactions extends WireData implements Module {
 
 			$button = "";
 
-			if (!empty($reaction_data['icon'])) {
+			if (!empty($reaction_data['icon']) && is_string($reaction_data['icon'])) {
 				if (strpos($reaction_data['icon'], 'fa') === 0) {
 					$button .= '<i class="reactions-buttons__icon ' . $this->sanitizer->entities1($reaction_data['icon']) . '"></i>';
 				} else if (strpos($reaction_data['icon'], '<') === 0) {
 					// markup, e.g. SVG icon or image
 					$button .= $reaction_data['icon'];
+				} else if (
+					(strpos($reaction_data['icon'], $this->config->paths->files) === 0 || strpos($reaction_data['icon'], $this->config->paths->templates) === 0)
+					&& substr($reaction_data['icon'], -4) === '.svg'
+				) {
+					// SVG icon disk path, this is something we can allow, assuming that it is a readable SVG file
+					$button .= is_file($reaction_data['icon']) && is_readable($reaction_data['icon'])
+						? file_get_contents($reaction_data['icon'])
+						: 'nope';
 				} else {
 					$button .= '<span class="reaction-buttons__icon">' . $this->sanitizer->entities1($reaction_data['icon']) . '</span>';
 				}
