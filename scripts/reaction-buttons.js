@@ -71,6 +71,14 @@ document.addEventListener('DOMContentLoaded', () => {
 					reactionButtons.forEach(reactionButton => {
 						reactionButton.disabled = false;
 					});
+
+					// trigger an event to notify other scripts that the reactions have been updated
+					document.dispatchEvent(new CustomEvent('reactions-updated', {
+						detail: {
+							pageID: pageID,
+							reaction: reaction,
+						},
+					}, { bubbles: true }));
 				})
 				.catch((error) => {
 
