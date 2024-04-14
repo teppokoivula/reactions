@@ -9,7 +9,7 @@ class ProcessReactions extends Process implements Module {
 		return [
 			'title' => 'Process Reactions',
 			'summary' => 'A module for managing reactions on pages.',
-			'version' => '0.0.1',
+			'version' => '0.0.2',
 			'author' => 'Teppo Koivula',
 			'href' => 'https://github.com/teppokoivula/reactions',
 			'icon' => 'heart-o',
@@ -28,6 +28,18 @@ class ProcessReactions extends Process implements Module {
 		/** @var Reactions */
 		$reactions = $this->modules->get('Reactions');
 
+		$limit = 25;
+
+		$reactions_for_pages = $reactions->getReactionsForAllPages([
+			'limit' => $limit,
+			'start' => $this->input->get->pageNum > 0 ? 0 + (($this->input->get->pageNum - 1) * $limit) : 0,
+		]);
+
+		// if we have no reactions yet, just display a message
+		if (empty($reactions_for_pages['total'])) {
+			return $this->_('No reactions yet.');
+		}
+
 		$reaction_types = $reactions->getReactionTypes();
 
 		/** @var MarkupAdminDataTable */
@@ -44,12 +56,6 @@ class ProcessReactions extends Process implements Module {
 			$table->headerRow($columns);
 		}
 
-		$limit = 25;
-
-		$reactions_for_pages = $reactions->getReactionsForAllPages([
-			'limit' => $limit,
-			'start' => $this->input->get->pageNum > 0 ? 0 + (($this->input->get->pageNum - 1) * $limit) : 0,
-		]);
 		foreach ($reactions_for_pages['reactions'] as $page_id => $page_reactions) {
 			$page_object = $this->pages->get($page_id);
 			if (!$page_object->id) continue;
