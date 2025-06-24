@@ -226,11 +226,50 @@ class Reactions extends WireData implements Module {
 	 * @return array
 	 */
 	public function getReactionsForAllPages(array $options = []): array {
+
+		$joins = [];
+		$select = [
+			'`reactions`.*',
+		];
+
+		if (isset($options['sort'])) {
+			$reaction_types = array_keys($this->reaction_types);
+			if (in_array($options['sort'], $reaction_types)) {
+				$options['sort'] = 'reaction_' . $options['sort'];
+			} else if ($options['sort'] === 'page.title') {
+				$options['sort'] = 'page.title';
+				$joins[] = "JOIN `field_title` ON `reactions`.`pages_id` = `field_title`.`pages_id`";
+				$select[] = '`field_title`.`data` AS `page.title`';
+			} else if (in_array($options['sort'], [
+				'page',
+				'created',
+				'updated',
+			])) {
+				$options['sort'] = $options['sort'];
+			} else if ($options['sort'] === 'total') {
+				$options['sort'] = 'total';
+				$joins[] = "JOIN (SELECT `pages_id`, SUM(" . implode(' + ', array_map(function($type) {
+					return "`reaction_" . $type . "`";
+				}, array_keys($this->reaction_types))) . ") AS `total` FROM `reactions` GROUP BY `pages_id`) AS `total_reactions` ON `reactions`.`pages_id` = `total_reactions`.`pages_id`";
+				$select[] = '`total_reactions`.`total`';
+			} else {
+				unset($options['sort']);
+			}
+		}
+
+		if (!isset($options['sort_dir']) || !in_array(strtoupper($options['sort_dir']), ['ASC', 'DESC'])) {
+			$options['sort_dir'] = 'ASC';
+		}
+
 		$stmt = $this->database->query("
-		SELECT * FROM `reactions`
+		SELECT " . implode(', ', $select) . "
+		FROM `reactions`
+		" . (!empty($joins) ? implode(' ', $joins) : "") . "
+		" . (isset($options['sort']) ? "ORDER BY `" . $options['sort'] . "` " . $options['sort_dir'] : "") . "
 		" . (isset($options['limit']) ? "LIMIT " . (int) $options['limit'] : "") . "
 		" . (isset($options['start']) ? "OFFSET " . (int) $options['start'] : "") . "
 		");
+
 		$data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		$reactions = [];
 		foreach ($data as $row) {
