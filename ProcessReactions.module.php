@@ -31,7 +31,7 @@ class ProcessReactions extends Process implements Module {
 		$reaction_types = $reactions->getReactionTypes();
 
 		$sort = $this->input->get('sort', array_merge([
-			'page',
+			'pages_id',
 			'page.title',
 			'total',
 		], array_keys($reaction_types)));

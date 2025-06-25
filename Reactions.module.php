@@ -249,7 +249,7 @@ class Reactions extends WireData implements Module {
 				}, array_keys($this->reaction_types))) . ") AS `total` FROM `reactions` GROUP BY `pages_id`) AS `total_reactions` ON `reactions`.`pages_id` = `total_reactions`.`pages_id`";
 				$select[] = '`total_reactions`.`total`';
 			 } else if (in_array($options['sort'], [
-				'page',
+				'pages_id',
 				'created',
 				'updated',
 			])) {
