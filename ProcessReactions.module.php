@@ -99,7 +99,7 @@ class ProcessReactions extends Process implements Module {
 		}
 
 		foreach ($reaction_types as $key => $reaction_type) {
-			$reaction_types[$key]['name'] = $key;
+			$reaction_types[$key]['key'] = $key;
 		}
 
 		// add script tag for general utilities
@@ -113,7 +113,7 @@ class ProcessReactions extends Process implements Module {
 		document.querySelectorAll('.process-reactions-table thead th').forEach((header, index) => {
 
 			// add data attributes and classes to headers
-			header.setAttribute('data-reaction-type', index === 0 ? 'page.title' : (index <= reactionTypes.length ? reactionTypes[index - 1].name : 'total'));
+			header.setAttribute('data-reaction-type', index === 0 ? 'page.title' : (index <= reactionTypes.length ? reactionTypes[index - 1].key : 'total'));
 			header.classList.add('uk-link');
 
 			// if we are currently sorting by this header, add a sorting icon

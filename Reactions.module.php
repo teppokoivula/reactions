@@ -233,26 +233,29 @@ class Reactions extends WireData implements Module {
 		];
 
 		if (isset($options['sort'])) {
-			$reaction_types = array_keys($this->reaction_types);
-			if (in_array($options['sort'], $reaction_types)) {
+			$reaction_type_keys = array_keys($this->reaction_types);
+			if (in_array($options['sort'], $reaction_type_keys)) {
+				// sort by reaction type, e.g. 'like', 'love', etc.
+				// prepend 'reaction_' to the sort value, as that is how the columns are named in the database
 				$options['sort'] = 'reaction_' . $options['sort'];
 			} else if ($options['sort'] === 'page.title') {
-				$options['sort'] = 'page.title';
+				// sort by page title, join the field_title table to get the title
 				$joins[] = "JOIN `field_title` ON `reactions`.`pages_id` = `field_title`.`pages_id`";
 				$select[] = '`field_title`.`data` AS `page.title`';
-			} else if (in_array($options['sort'], [
-				'page',
-				'created',
-				'updated',
-			])) {
-				$options['sort'] = $options['sort'];
 			} else if ($options['sort'] === 'total') {
-				$options['sort'] = 'total';
+				// sort by total reactions, join a subquery that calculates the total reactions for each page
 				$joins[] = "JOIN (SELECT `pages_id`, SUM(" . implode(' + ', array_map(function($type) {
 					return "`reaction_" . $type . "`";
 				}, array_keys($this->reaction_types))) . ") AS `total` FROM `reactions` GROUP BY `pages_id`) AS `total_reactions` ON `reactions`.`pages_id` = `total_reactions`.`pages_id`";
 				$select[] = '`total_reactions`.`total`';
+			 } else if (in_array($options['sort'], [
+				'page',
+				'created',
+				'updated',
+			])) {
+				// valid sort value that exists in the reactions table, no need to do anything special
 			} else {
+				// invalid sort value, remove it
 				unset($options['sort']);
 			}
 		}
