@@ -70,15 +70,12 @@ class ProcessReactions extends Process implements Module {
 		foreach ($reactions_for_pages['reactions'] as $page_id => $page_reactions) {
 			$page_object = $this->pages->get($page_id);
 			if (!$page_object->id) continue;
+			$row = [];
 			foreach ($reaction_types as $reaction_type => $reaction_type_data) {
 				$row[$reaction_type] = $page_reactions[$reaction_type] ?? 0;
 			}
 			$row['_total_reactions'] = array_sum($row);
-			array_unshift($row, [
-				'page' => '<a href="' . $page_object->url . '" target="_blank">'
-					. $page_object->title
-					. '</a>',
-			]);
+			array_unshift($row, '<a href="' . $page_object->url . '" target="_blank">' . $page_object->title . '</a>');
 			$table->row(array_values($row));
 		}
 

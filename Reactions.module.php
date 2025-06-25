@@ -37,7 +37,7 @@ class Reactions extends WireData implements Module {
 		return [
 			'title' => 'Reactions',
 			'summary' => 'A module for collecting reactions on pages.',
-			'version' => '0.0.6',
+			'version' => '0.0.7',
 			'author' => 'Teppo Koivula',
 			'href' => 'https://github.com/teppokoivula/reactions',
 			'icon' => 'heart-o',
